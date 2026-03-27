@@ -53,44 +53,50 @@ function App() {
         ))}
       </div>
       <div>&nbsp;</div>
-      <div className="flex gap-4 mb-6 mt-auto">
-        <button
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          onClick={() => {
-            exportToBudgetCsv(accounts);
-          }}
-        >
-          Export CSV
-        </button>
-
-        <label className="bg-gray-200 px-4 py-2 rounded cursor-pointer hover:bg-gray-300">
-          Import CSV
-          <input
-            type="file"
-            accept=".csv"
-            onChange={(e) => {
-              importFromBudgetCSV(e)
-                .then((result) => {
-                  localStorage.setItem("data", JSON.stringify(result));
-                  setAccounts(result);
-                })
-                .catch((e: unknown) => {
-                  console.error("Import failed:", e);
-                });
+      <div className="flex gap-4 mb-6 mt-auto flex-col">
+        <div className="flex gap-4">
+          <button
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            onClick={() => {
+              exportToBudgetCsv(accounts);
             }}
-            className="hidden"
-          />
-        </label>
+          >
+            Export CSV
+          </button>
 
-        <button
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          onClick={() => {
-            setAccounts([]);
-            localStorage.clear();
-          }}
-        >
-          Clear All Data
-        </button>
+          <label className="bg-gray-200 px-4 py-2 rounded cursor-pointer hover:bg-gray-300">
+            Import CSV
+            <input
+              type="file"
+              accept=".csv"
+              onChange={(e) => {
+                importFromBudgetCSV(e)
+                  .then((result) => {
+                    localStorage.setItem("data", JSON.stringify(result));
+                    setAccounts(result);
+                    // if (navigator.storage?.persist) {
+                    //   const isPersisted = await navigator.storage.persist();
+                    //   console.log(`Persisted storage granted: ${isPersisted}`);
+                    // }
+                  })
+                  .catch((e: unknown) => {
+                    console.error("Import failed:", e);
+                  });
+              }}
+              className="hidden"
+            />
+          </label>
+
+          <button
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            onClick={() => {
+              setAccounts([]);
+              localStorage.clear();
+            }}
+          >
+            Clear All Data
+          </button>
+        </div>
       </div>
     </section>
   );
