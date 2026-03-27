@@ -20,9 +20,6 @@ concurrency:
   group: 'pages'
   cancel-in-progress: true
 
-env:
-  BASE_URL: "/budget-tracker/"
-
 jobs:
   # Single deploy job since we're just deploying
   deploy:
@@ -38,6 +35,8 @@ jobs:
         with:
           node-version: lts/*
           cache: 'npm'
+      - name: Create env file
+        run: echo "${{secrets.WEBSITE_ENV_PRODUCTION }}" > .env
       - name: Install dependencies
         run: npm ci
       - name: Build
