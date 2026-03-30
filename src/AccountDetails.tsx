@@ -11,6 +11,11 @@ interface Props {
   onUpdate: (updatedAccount: Account) => void;
 }
 
+interface TransactionSummary {
+  fullSum: number;
+  weekendSum: number;
+}
+
 const TODAY = dayjs().toISOString().substring(0, 10);
 
 const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
@@ -61,6 +66,29 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
   const oneYearAgoTransactions = account.transactions.filter((t) =>
     dayjs(t.date, "YYYY-MM-DD").isAfter(oneYearAgoDayJs)
   );
+
+  const transactionSummary = oneYearAgoTransactions.reduce<
+    Record<string, TransactionSummary>
+  >((acc, t) => {
+    const key = dayjs(t.date, "YYYY-MM-DD").format("YYYY-MM");
+    let value = acc[key];
+    if (!value) {
+      value = { fullSum: 0, weekendSum: 0 };
+      acc[key] = value;
+    }
+    if (t.amount < 0) {
+      value.fullSum = new Big(value.fullSum)
+        .add(new Big(t.amount).abs())
+        .toNumber();
+      const dateDayjs = dayjs(t.date, "YYYY-MM-DD");
+      if (dateDayjs.day() == 0 || dateDayjs.day() == 6) {
+        value.weekendSum = new Big(value.weekendSum)
+          .add(new Big(t.amount).abs())
+          .toNumber();
+      }
+    }
+    return acc;
+  }, {});
 
   return (
     <div className="w-full">
@@ -120,32 +148,60 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
         {account.transactions.length === 0 && (
           <p className="text-gray-400">No transactions yet.</p>
         )}
-        {oneYearAgoTransactions.map((t) => (
-          <div
-            key={t.id}
-            className="flex justify-between items-center p-4 bg-white rounded-lg border"
-          >
-            <div>
-              <p className="font-medium">{t.desc}</p>
-              <p className="text-xs text-gray-400">{t.date}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <span
-                className={`font-mono font-semibold ${getAmountTextColor(t.amount)}`}
-              >
-                RM{t.amount.toFixed(2)}
-              </span>
-              <button
-                onClick={() => {
-                  handleDelete(t.id);
+        {oneYearAgoTransactions.map((t, idx, arr) => (
+          <React.Fragment key={t.id}>
+            {(idx === 0 ||
+              dayjs(t.date, "YYYY-MM-DD").month() !==
+                dayjs(arr[idx - 1]?.date, "YYYY-MM-DD").month()) && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontWeight: "bold",
+                  padding: "10px",
+                  borderBottom: "2px solid #ddd",
                 }}
-                className="text-gray-300 hover:text-red-600 transition"
-                title="Delete"
               >
-                ✕
-              </button>
+                <span>{dayjs(t.date, "YYYY-MM-DD").format("YYYY-MM")}</span>
+                <span>
+                  Weekend / Total :{" "}
+                  {
+                    transactionSummary[
+                      dayjs(t.date, "YYYY-MM-DD").format("YYYY-MM")
+                    ]?.weekendSum
+                  }{" "}
+                  /{" "}
+                  {
+                    transactionSummary[
+                      dayjs(t.date, "YYYY-MM-DD").format("YYYY-MM")
+                    ]?.fullSum
+                  }
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between items-center p-4 bg-white rounded-lg border">
+              <div>
+                <p className="font-medium">{t.desc}</p>
+                <p className="text-xs text-gray-400">{t.date}</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <span
+                  className={`font-mono font-semibold ${getAmountTextColor(t.amount)}`}
+                >
+                  RM{t.amount.toFixed(2)}
+                </span>
+                <button
+                  onClick={() => {
+                    handleDelete(t.id);
+                  }}
+                  className="text-gray-300 hover:text-red-600 transition"
+                  title="Delete"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
-          </div>
+          </React.Fragment>
         ))}
         <p className="text-gray-400 text-center">
           Only recent 1 year transactions are shown
