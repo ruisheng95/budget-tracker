@@ -5,6 +5,7 @@ import AccountDetails from "./AccountDetails";
 import { exportToBudgetCsv, importFromBudgetCSV } from "./utils/budget-parser";
 import Big from "big.js";
 import useLocalStorageData from "./utils/useLocalStorageData";
+import { getAmountTextColor } from "./utils/common";
 
 function App() {
   const [accountsJson, setAccounts] = useLocalStorageData();
@@ -22,9 +23,7 @@ function App() {
     <section className="flex flex-col flex-1">
       <div className="flex items-center mb-6 justify-between text-2xl font-bold">
         <h1>My Accounts</h1>
-        <h1 className={balanceSum > 0 ? "text-green-700" : "text-red-600"}>
-          RM{balanceSum}
-        </h1>
+        <h1 className={getAmountTextColor(balanceSum)}>RM{balanceSum}</h1>
       </div>
       <div className="grid gap-4">
         {accounts.map((account) => (
@@ -37,7 +36,7 @@ function App() {
           >
             <h2 className="text-lg font-semibold">{account.name}</h2>
             <p
-              className={`text-2xl font-mono ${account.balance > 0 ? "text-green-700" : "text-red-600"} flex justify-between`}
+              className={`text-2xl font-mono ${getAmountTextColor(account.balance)} flex justify-between`}
             >
               <span>RM{account.balance.toFixed(2)}</span>
               {account.name === "Shopee" && (
@@ -113,9 +112,7 @@ function App() {
       </button>
       <h1 className="text-2xl font-bold mb-2 w-full flex justify-between">
         <span>{account.name} History</span>
-        <span
-          className={account.balance > 0 ? "text-green-700" : "text-red-600"}
-        >
+        <span className={getAmountTextColor(account.balance)}>
           RM{account.balance}
         </span>
       </h1>

@@ -1,8 +1,9 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 import type { Account, Transaction } from "./types";
 import dayjs from "dayjs";
 import Big from "big.js";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { getAmountTextColor } from "./utils/common";
 dayjs.extend(customParseFormat);
 
 interface Props {
@@ -14,12 +15,12 @@ const TODAY = dayjs().toISOString().substring(0, 10);
 
 const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
   const [desc, setDesc] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState("-0");
   const [date, setDate] = useState(TODAY);
 
   const handleAdd = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (!desc || !amount || !date) return;
+    if (!desc || !amount || !date || new Big(amount).eq(Big(0))) return;
 
     const amountNum = new Big(amount).round(2).toNumber();
 
@@ -37,7 +38,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
     });
 
     setDesc("");
-    setAmount("");
+    setAmount("-0");
   };
 
   const handleDelete = (id: number) => {
@@ -57,6 +58,10 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
     "YYYY-MM-DD"
   ).subtract(1, "year");
 
+  const oneYearAgoTransactions = account.transactions.filter((t) =>
+    dayjs(t.date, "YYYY-MM-DD").isAfter(oneYearAgoDayJs)
+  );
+
   return (
     <div className="w-full">
       <div className="bg-white py-6 px-2 rounded-xl shadow-sm border border-gray-100 mb-8">
@@ -64,18 +69,28 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
         <form onSubmit={handleAdd} className="flex flex-col gap-3">
           <div className="flex flex-col md:flex-row gap-3">
             <input
+              list="desc"
               type="text"
               placeholder="Description (e.g. Starbucks)"
               className="flex-1 p-2 border rounded-md"
+              required
               value={desc}
               onChange={(e) => {
                 setDesc(e.target.value);
               }}
             />
+            <datalist id="desc">
+              {[
+                ...new Set(oneYearAgoTransactions.map((item) => item.desc)),
+              ].map((desc, idx) => (
+                <option key={idx} value={desc}></option>
+              ))}
+            </datalist>
             <input
               type="number"
               placeholder="Amount"
               className="w-full md:w-32 p-2 border rounded-md"
+              required
               value={amount}
               onChange={(e) => {
                 setAmount(e.target.value);
@@ -90,6 +105,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
             placeholder="Date"
             className="w-full md:w-40 p-2 border rounded-md"
             value={date}
+            required
             min={oneYearAgoDayJs.toISOString().substring(0, 10)}
             max={TODAY}
             onChange={(e) => {
@@ -104,37 +120,33 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
         {account.transactions.length === 0 && (
           <p className="text-gray-400">No transactions yet.</p>
         )}
-        {account.transactions.map((t) =>
-          dayjs(t.date, "YYYY-MM-DD").isAfter(oneYearAgoDayJs) ? (
-            <div
-              key={t.id}
-              className="flex justify-between items-center p-4 bg-white rounded-lg border"
-            >
-              <div>
-                <p className="font-medium">{t.desc}</p>
-                <p className="text-xs text-gray-400">{t.date}</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <span
-                  className={`font-mono font-semibold ${t.amount > 0 ? "text-green-700" : "text-red-600"}`}
-                >
-                  RM{t.amount.toFixed(2)}
-                </span>
-                <button
-                  onClick={() => {
-                    handleDelete(t.id);
-                  }}
-                  className="text-gray-300 hover:text-red-600 transition"
-                  title="Delete"
-                >
-                  ✕
-                </button>
-              </div>
+        {oneYearAgoTransactions.map((t) => (
+          <div
+            key={t.id}
+            className="flex justify-between items-center p-4 bg-white rounded-lg border"
+          >
+            <div>
+              <p className="font-medium">{t.desc}</p>
+              <p className="text-xs text-gray-400">{t.date}</p>
             </div>
-          ) : (
-            <Fragment key={t.id}></Fragment>
-          )
-        )}
+            <div className="flex items-center gap-4">
+              <span
+                className={`font-mono font-semibold ${getAmountTextColor(t.amount)}`}
+              >
+                RM{t.amount.toFixed(2)}
+              </span>
+              <button
+                onClick={() => {
+                  handleDelete(t.id);
+                }}
+                className="text-gray-300 hover:text-red-600 transition"
+                title="Delete"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        ))}
         <p className="text-gray-400 text-center">
           Only recent 1 year transactions are shown
         </p>
