@@ -39,7 +39,9 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
     onUpdate({
       ...account,
       balance: new Big(account.balance).add(new Big(amountNum)).toNumber(),
-      transactions: [newTransaction, ...account.transactions],
+      transactions: [newTransaction, ...account.transactions].sort((a, b) =>
+        b.date.localeCompare(a.date)
+      ),
     });
 
     setDesc("");
