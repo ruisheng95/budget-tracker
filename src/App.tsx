@@ -6,7 +6,7 @@ import { exportToBudgetCsv, importFromBudgetCSV } from "./utils/budget-parser";
 import Big from "big.js";
 import useLocalStorageData from "./utils/useLocalStorageData";
 import { getAmountTextColor } from "./utils/common";
-import { FiSettings, FiPlus} from "react-icons/fi"; //for icons
+import { FiSettings, FiPlus } from "react-icons/fi"; //for icons
 
 function App() {
   const [accountsJson, setAccounts] = useLocalStorageData();
@@ -16,6 +16,7 @@ function App() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showAddAccount, setShowAddAccount] = useState(false);
+  const [newAccountName, setNewAccountName] = useState("");
 
   const accounts = JSON.parse(accountsJson) as Account[];
   const selectedAccount = accounts.find((c) => c.id === selectedAccountId);
@@ -139,7 +140,7 @@ function App() {
             setShowAddAccount(true);
           }}
         >
-            <FiPlus size={24} className="mx-auto" />
+          <FiPlus size={24} className="mx-auto" />
         </div>
 
         {/* Add new acc popup */}
@@ -157,14 +158,37 @@ function App() {
               }}
             >
               <h2 className="text-2xl font-bold mb-4">Add account</h2>
-
+              <input
+                type="text"
+                placeholder="Account name"
+                className="w-full p-2 border rounded-md mb-4"
+                onChange={(e) => {
+                  setNewAccountName(e.target.value);
+                }}
+              />
+              <button
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                onClick={() => {
+                  const newAccountDetails: Account = {
+                    id: accounts.length + 1,
+                    name: newAccountName,
+                    transactions: [],
+                    balance: 0,
+                    limit: 10000,
+                  };
+                  setAccounts([...accounts, newAccountDetails]);
+                  setNewAccountName("");
+                  setShowAddAccount(false);
+                }}
+              >
+                Add
+              </button>
               <p className="text-gray-600 text-xs italic mt-4">
                 Click anywhere in the background to close
               </p>
             </div>
           </div>
         )}
-
       </div>
 
       {/* <div>&nbsp;</div>
