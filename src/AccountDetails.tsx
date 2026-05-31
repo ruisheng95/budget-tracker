@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import Big from "big.js";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { getAmountTextColor } from "./utils/common";
+import { FiEdit, FiSave } from "react-icons/fi";
+
 dayjs.extend(customParseFormat);
 
 interface Props {
@@ -22,6 +24,10 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
   const [desc, setDesc] = useState("");
   const [amount, setAmount] = useState("-0");
   const [date, setDate] = useState(TODAY);
+
+  const [editingId, setEditingId] = useState(-1);
+  const [editAmount, setEditAmount] = useState("-0");
+  const [editDesc, setEditDesc] = useState("");
 
   const handleAdd = (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -46,6 +52,33 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
 
     setDesc("");
     setAmount("-0");
+  };
+
+  const handleSaveEdit = (id: number, editDesc: string, editAmount: string) => {
+    let oldBalance = 0;
+    const updatedTransactions = account.transactions.map((t) => {
+      if (t.id === id) {
+        oldBalance = t.amount;
+        return {
+          id: t.id,
+          date: t.date,
+          desc: editDesc,
+          amount: new Big(editAmount).toNumber(),
+        };
+      }
+      return t;
+    });
+
+    const newBalance = new Big(account.balance)
+      .minus(new Big(oldBalance))
+      .add(editAmount)
+      .toNumber();
+
+    onUpdate({
+      ...account,
+      balance: newBalance,
+      transactions: updatedTransactions,
+    });
   };
 
   const handleDelete = (id: number) => {
@@ -183,15 +216,62 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
             )}
             <div className="flex justify-between items-center p-4 bg-white rounded-lg border">
               <div>
-                <p className="font-medium">{t.desc}</p>
+                {!(editingId === t.id) ? (
+                  <p className="font-medium">{t.desc}</p>
+                ) : (
+                  <input
+                    className="w-full md:w-32 p-2 border rounded-md"
+                    type="text"
+                    value={editDesc}
+                    onChange={(e) => {
+                      setEditDesc(e.target.value);
+                    }}
+                  ></input>
+                )}
+
                 <p className="text-xs text-gray-400">{t.date}</p>
               </div>
               <div className="flex items-center gap-4">
-                <span
-                  className={`font-mono font-semibold ${getAmountTextColor(t.amount)}`}
+                {!(editingId === t.id) ? (
+                  <span
+                    className={`font-mono font-semibold ${getAmountTextColor(
+                      t.amount
+                    )}`}
+                  >
+                    RM{t.amount.toFixed(2)}
+                  </span>
+                ) : (
+                  <input
+                    type="number"
+                    className="w-full md:w-32 p-2 border rounded-md"
+                    value={editAmount}
+                    onChange={(e) => {
+                      setEditAmount(e.target.value);
+                    }}
+                  />
+                )}
+                <button
+                  onClick={() => {
+                    if (editingId === -1) {
+                      setEditingId(t.id);
+                      setEditDesc(t.desc);
+                      setEditAmount(t.amount.toString());
+                    } else {
+                      handleSaveEdit(t.id, editDesc, editAmount);
+                      setEditingId(-1);
+                    }
+                  }}
+                  className="text-gray-300 hover:text-red-600 transition"
                 >
-                  RM{t.amount.toFixed(2)}
-                </span>
+                  {!(editingId === t.id) ? (
+                    <FiEdit
+                      className="text-gray-300 hover:text-green-600 transition"
+                      title="Edit"
+                    />
+                  ) : (
+                    <FiSave className="text-gray-300 hover:text-blue-600 transition" />
+                  )}
+                </button>
                 <button
                   onClick={() => {
                     handleDelete(t.id);
