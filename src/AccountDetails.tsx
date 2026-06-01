@@ -220,7 +220,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
                   <p className="font-medium">{t.desc}</p>
                 ) : (
                   <input
-                    className="w-full md:w-32 p-2 border rounded-md"
+                    className="w-full md:w-32 p-1 border rounded-md"
                     type="text"
                     value={editDesc}
                     onChange={(e) => {
@@ -243,7 +243,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
                 ) : (
                   <input
                     type="number"
-                    className="w-full md:w-32 p-2 border rounded-md"
+                    className="w-full md:w-32 p-1 border rounded-md"
                     value={editAmount}
                     onChange={(e) => {
                       setEditAmount(e.target.value);

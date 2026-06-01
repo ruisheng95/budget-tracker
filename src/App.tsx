@@ -26,11 +26,11 @@ function App() {
 
   const accountSummaryComponent = (): React.JSX.Element => (
     <section className="flex flex-col flex-1">
-      <div className="flex items-center mb-6 justify-between text-2xl font-bold">
-        <h1>My Accounts</h1>
-        <h1 className={getAmountTextColor(balanceSum)}>RM{balanceSum}</h1>
+      <div className="flex items-center mb-6 justify-between text-2xl font-bold gap-3">
+        <h1 className="text-xl">My Accounts</h1>
+        <h1 className={`${getAmountTextColor(balanceSum)} text-2xl`}>RM{balanceSum}</h1>
         <button
-          className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+          className="bg-gray-300 p-1 rounded hover:bg-gray-400"
           onClick={() => {
             setShowSettings(true);
           }}
@@ -170,7 +170,7 @@ function App() {
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                 onClick={() => {
                   const newAccountDetails: Account = {
-                    id: accounts.length + 1,
+                    id: accounts.length,
                     name: newAccountName,
                     transactions: [],
                     balance: 0,
@@ -250,7 +250,7 @@ function App() {
       >
         ← Back to Dashboard
       </button>
-      <h1 className="text-2xl font-bold mb-2 w-full flex justify-between">
+      <h1 className="text-xl font-bold mb-2 w-full flex justify-between">
         <span>{account.name} History</span>
         <span className={getAmountTextColor(account.balance)}>
           RM{account.balance}
