@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import Big from "big.js";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { getAmountTextColor } from "./utils/common";
-import { FiEdit, FiSave } from "react-icons/fi";
+import { FiEdit, FiSave, FiTrash2 } from "react-icons/fi";
 
 dayjs.extend(customParseFormat);
 
@@ -250,37 +250,57 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
                     }}
                   />
                 )}
-                <button
-                  onClick={() => {
-                    if (editingId === -1) {
-                      setEditingId(t.id);
-                      setEditDesc(t.desc);
-                      setEditAmount(t.amount.toString());
-                    } else {
-                      handleSaveEdit(t.id, editDesc, editAmount);
-                      setEditingId(-1);
-                    }
-                  }}
-                  className="text-gray-300 hover:text-red-600 transition"
-                >
-                  {!(editingId === t.id) ? (
-                    <FiEdit
+
+                {editingId === t.id ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        setEditingId(-1);
+                        setEditDesc("");
+                        setEditAmount("-0");
+                      }}
+                      className="text-gray-300 hover:text-red-600 transition"
+                      title="Discard"
+                    >
+                      <FiTrash2 />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        handleSaveEdit(t.id, editDesc, editAmount);
+                        setEditingId(-1);
+                      }}
+                      className="text-gray-300 hover:text-blue-600 transition"
+                      title="Save"
+                    >
+                      <FiSave />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => {
+                        setEditingId(t.id);
+                        setEditDesc(t.desc);
+                        setEditAmount(t.amount.toString());
+                      }}
                       className="text-gray-300 hover:text-green-600 transition"
                       title="Edit"
-                    />
-                  ) : (
-                    <FiSave className="text-gray-300 hover:text-blue-600 transition" />
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    handleDelete(t.id);
-                  }}
-                  className="text-gray-300 hover:text-red-600 transition"
-                  title="Delete"
-                >
-                  ✕
-                </button>
+                    >
+                      <FiEdit />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        handleDelete(t.id);
+                      }}
+                      className="text-gray-300 hover:text-red-600 transition"
+                      title="Delete"
+                    >
+                      X
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </React.Fragment>
