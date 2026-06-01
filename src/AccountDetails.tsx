@@ -29,6 +29,8 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
   const [editAmount, setEditAmount] = useState("-0");
   const [editDesc, setEditDesc] = useState("");
 
+  const [deletePrompt, setDeletePrompt] = useState(false);
+
   const handleAdd = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!desc || !amount || !date || new Big(amount).eq(Big(0))) return;
@@ -253,6 +255,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
 
                 {editingId === t.id ? (
                   <>
+                    {/* discard */}
                     <button
                       onClick={() => {
                         setEditingId(-1);
@@ -265,6 +268,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
                       <FiTrash2 />
                     </button>
 
+                    {/* save */}
                     <button
                       onClick={() => {
                         handleSaveEdit(t.id, editDesc, editAmount);
@@ -292,13 +296,49 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
 
                     <button
                       onClick={() => {
-                        handleDelete(t.id);
+                        setDeletePrompt(true);
                       }}
                       className="text-gray-300 hover:text-red-600 transition"
                       title="Delete"
                     >
                       X
                     </button>
+
+                    {/* Delete prompt */}
+                    {deletePrompt && (
+                      <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center">
+                        <div
+                          className="bg-white p-5 rounded-lg shadow-lg w-96"
+                          onClick={(e) => {
+                            e.stopPropagation(); // block click from propagating to the outer div when pressing settings stuff
+                          }}
+                        >
+                          <h1>
+                            Are you sure you want to delete this transaction
+                          </h1>
+                          <div className="flex gap-3 mt-2">
+                            <button
+                              className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+                              onClick={() => {
+                                handleDelete(t.id);
+                                setDeletePrompt(false);
+                              }}
+                            >
+                              Yes
+                            </button>
+                            <button
+                              className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+                              onClick={() => {
+                                setDeletePrompt(false);
+                              }}
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {/* Delete prompt end */}
                   </>
                 )}
               </div>
