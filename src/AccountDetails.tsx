@@ -26,10 +26,10 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
   const [date, setDate] = useState(TODAY);
 
   const [editingId, setEditingId] = useState(-1);
-  const [editAmount, setEditAmount] = useState("-0");
+  const [editAmount, setEditAmount] = useState("");
   const [editDesc, setEditDesc] = useState("");
 
-  const [deletePrompt, setDeletePrompt] = useState(false);
+  const [deletePromptId, setDeletePromptId] = useState(-1);
 
   const handleAdd = (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -263,8 +263,6 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
                     <button
                       onClick={() => {
                         setEditingId(-1);
-                        setEditDesc("");
-                        setEditAmount("-0");
                       }}
                       className="text-gray-300 hover:text-red-600 transition"
                       title="Discard"
@@ -300,7 +298,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
 
                     <button
                       onClick={() => {
-                        setDeletePrompt(true);
+                        setDeletePromptId(t.id);
                       }}
                       className="text-gray-300 hover:text-red-600 transition"
                       title="Delete"
@@ -309,12 +307,12 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
                     </button>
 
                     {/* Delete prompt */}
-                    {deletePrompt && (
+                    {deletePromptId === t.id && (
                       <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center">
                         <div
                           className="bg-white p-5 rounded-lg shadow-lg w-96"
                           onClick={(e) => {
-                            e.stopPropagation(); // block click from propagating to the outer div when pressing settings stuff
+                            e.stopPropagation();
                           }}
                         >
                           <h1>
@@ -325,7 +323,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
                               className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
                               onClick={() => {
                                 handleDelete(t.id);
-                                setDeletePrompt(false);
+                                setDeletePromptId(-1);
                               }}
                             >
                               Yes
@@ -333,7 +331,7 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
                             <button
                               className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
                               onClick={() => {
-                                setDeletePrompt(false);
+                                setDeletePromptId(-1);
                               }}
                             >
                               No
