@@ -154,7 +154,7 @@ const AccountSummaryComponent: React.FC<Props> = ({
             <div
               className="bg-white p-5 rounded-lg shadow-lg w-96"
               onClick={(e) => {
-                e.stopPropagation(); // block click from propagating to the outer div when pressing settings stuff
+                e.stopPropagation();
               }}
             >
               <h2 className="text-2xl font-bold mb-4">Add account</h2>
