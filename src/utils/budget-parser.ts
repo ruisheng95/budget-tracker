@@ -53,8 +53,8 @@ export const importFromBudgetCSV = (
       skipEmptyLines: true,
       complete: (results) => {
         const newAccounts: Record<string, Account> = {};
-        let accountCount = 0;
-        let transactionCount = 0;
+        let accountCount = 1;
+        let transactionCount = 1;
         results.data.forEach((csvData) => {
           const date = dayjs(Number(csvData[0])).format("YYYY-MM-DD");
           const accountName = csvData[1];

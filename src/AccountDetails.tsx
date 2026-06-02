@@ -36,9 +36,13 @@ const AccountDetails: React.FC<Props> = ({ account, onUpdate }) => {
     if (!desc || !amount || !date || new Big(amount).eq(Big(0))) return;
 
     const amountNum = new Big(amount).round(2).toNumber();
+    const newId = account.transactions.reduce(
+      (max, item) => (item.id > max ? item.id : max),
+      -1
+    );
 
     const newTransaction: Transaction = {
-      id: account.transactions.length,
+      id: newId + 1,
       desc: desc,
       amount: amountNum,
       date: date,

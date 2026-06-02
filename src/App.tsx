@@ -170,7 +170,7 @@ function App() {
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                 onClick={() => {
                   const newAccountDetails: Account = {
-                    id: accounts.length,
+                    id: accounts.length + 1,
                     name: newAccountName,
                     transactions: [],
                     balance: 0,
